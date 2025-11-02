@@ -15,5 +15,5 @@ const config = {
 // Initialize the game
 const game = new Phaser.Game(config);
 
-// Global debug flag
-window.DEBUG_MODE = true;
+// Global debug flag - toggle with Shift+D in game
+window.DEBUG_MODE = false;

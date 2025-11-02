@@ -10,6 +10,7 @@ class StoryScene extends Phaser.Scene {
         this.currentNarration = null;
         this.narrationVolume = 1.5; // Default volume at 150%
         this.controlsHideTimer = null;
+        this.atmosphereEffects = [];
     }
 
     create() {
@@ -37,6 +38,17 @@ class StoryScene extends Phaser.Scene {
         // Set up audio controls
         this.setupVolumeControl();
         this.setupAudioControls();
+
+        // Set up debug keyboard shortcut (Shift+D)
+        const shiftKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.SHIFT);
+        const dKey = this.input.keyboard.addKey(Phaser.Input.Keyboard.KeyCodes.D);
+
+        this.input.keyboard.on('keydown-D', (event) => {
+            if (shiftKey.isDown) {
+                event.preventDefault();
+                this.toggleDebug();
+            }
+        });
 
         // Set up debug tools if enabled
         if (this.registry.get('debug')) {
@@ -275,7 +287,10 @@ class StoryScene extends Phaser.Scene {
             this.currentBackground.destroy();
         }
 
-        // Add new background
+        // Clear old atmosphere effects
+        this.clearAtmosphere();
+
+        // Add new background at normal size (for smoother movement)
         this.currentBackground = this.add.image(960, 540, backgroundKey)
             .setDisplaySize(1920, 1080)
             .setDepth(-1);
@@ -288,6 +303,272 @@ class StoryScene extends Phaser.Scene {
             duration: 800,
             ease: 'Power2'
         });
+
+        // Add subtle Ken Burns effect (slow zoom and pan)
+        this.addCameraMovement(backgroundKey);
+
+        // Add atmospheric effects based on scene
+        this.addAtmosphere(backgroundKey);
+    }
+
+    clearAtmosphere() {
+        // Destroy all existing atmosphere effects
+        this.atmosphereEffects.forEach(effect => {
+            if (effect.destroy) effect.destroy();
+        });
+        this.atmosphereEffects = [];
+    }
+
+    addCameraMovement(backgroundKey) {
+        // Smoother, simpler movement - just scale, no complex calculations
+        const movements = {
+            'beach-day': { scaleStart: 1.0, scaleEnd: 1.03, panX: 10, panY: -5, duration: 40000 },
+            'cave-interior': { scaleStart: 1.0, scaleEnd: 1.02, panX: -8, panY: 3, duration: 45000 },
+            'underwater': { scaleStart: 1.0, scaleEnd: 1.025, panX: 5, panY: 8, duration: 42000 },
+            'village': { scaleStart: 1.0, scaleEnd: 1.03, panX: -10, panY: -3, duration: 43000 },
+            'moonlit-shore': { scaleStart: 1.0, scaleEnd: 1.03, panX: 8, panY: -8, duration: 48000 },
+            'menu-bg': { scaleStart: 1.0, scaleEnd: 1.02, panX: -5, panY: 5, duration: 50000 }
+        };
+
+        const movement = movements[backgroundKey] || { scaleStart: 1.0, scaleEnd: 1.02, panX: 0, panY: 0, duration: 45000 };
+        
+        // Very slow, smooth zoom and pan
+        this.tweens.add({
+            targets: this.currentBackground,
+            scaleX: movement.scaleEnd,
+            scaleY: movement.scaleEnd,
+            x: 960 + movement.panX,
+            y: 540 + movement.panY,
+            duration: movement.duration,
+            ease: 'Sine.easeInOut',
+            yoyo: true,
+            repeat: -1
+        });
+    }
+
+    addAtmosphere(backgroundKey) {
+        console.log('Adding atmosphere for:', backgroundKey);
+        
+        switch(backgroundKey) {
+            case 'beach-day':
+                this.addSunStreaks();
+                this.addFloatingParticles('#ffffff', 0.3, 3);
+                break;
+            
+            case 'cave-interior':
+                this.addMistEffect();
+                this.addFloatingParticles('#4a7c8c', 0.2, 5);
+                break;
+            
+            case 'underwater':
+                this.addBubbles();
+                this.addUnderwaterRays();
+                this.addFloatingParticles('#87CEEB', 0.4, 8);
+                break;
+            
+            case 'village':
+                this.addLightFog();
+                this.addFloatingParticles('#d4a76a', 0.2, 2);
+                break;
+            
+            case 'moonlit-shore':
+                this.addMoonbeams();
+                this.addFloatingParticles('#b8c6d1', 0.25, 4);
+                break;
+            
+            case 'menu-bg':
+                this.addMistEffect();
+                break;
+        }
+        
+        console.log('Atmosphere effects added:', this.atmosphereEffects.length);
+    }
+
+    addSunStreaks() {
+        // Create balanced sun ray effects with more dynamic animation
+        for (let i = 0; i < 7; i++) {
+            const x = 150 + (i * 300);
+            const ray = this.add.rectangle(x, -300, 220, 1700, 0xffd700, 0.15)
+                .setRotation(-0.3)
+                .setDepth(0)
+                .setBlendMode(Phaser.BlendModes.ADD);
+            
+            // Much more dramatic pulsing
+            this.tweens.add({
+                targets: ray,
+                alpha: { from: 0.08, to: 0.35 },
+                y: { from: -300, to: -250 },
+                duration: 2000 + (i * 300),
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
+            });
+            
+            this.atmosphereEffects.push(ray);
+        }
+    }
+
+    addMoonbeams() {
+        // Moonlight streaks with dramatic pulsing
+        for (let i = 0; i < 4; i++) {
+            const x = 350 + (i * 450);
+            const beam = this.add.rectangle(x, -100, 250, 1500, 0xc8d6e1, 0.12)
+                .setRotation(-0.2)
+                .setDepth(0)
+                .setBlendMode(Phaser.BlendModes.ADD);
+            
+            // Dramatic pulsing animation
+            this.tweens.add({
+                targets: beam,
+                alpha: { from: 0.05, to: 0.3 },
+                y: { from: -100, to: -50 },
+                duration: 2800 + (i * 400),
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
+            });
+            
+            this.atmosphereEffects.push(beam);
+        }
+    }
+
+    addUnderwaterRays() {
+        // Dramatic underwater god rays with lots of movement
+        for (let i = 0; i < 8; i++) {
+            const x = 80 + (i * 260);
+            const ray = this.add.rectangle(x, -200, 150, 1400, 0x87CEEB, 0.15)
+                .setRotation(0.15 - (i * 0.04))
+                .setDepth(0)
+                .setBlendMode(Phaser.BlendModes.ADD);
+            
+            // Much more dramatic sway and pulse
+            this.tweens.add({
+                targets: ray,
+                alpha: { from: 0.08, to: 0.38 },
+                x: x + (i % 2 === 0 ? 60 : -60),
+                rotation: ray.rotation + (i % 2 === 0 ? 0.1 : -0.1),
+                duration: 2500 + (i * 250),
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
+            });
+            
+            this.atmosphereEffects.push(ray);
+        }
+    }
+
+    addMistEffect() {
+        // Dramatic drifting fog/mist
+        for (let i = 0; i < 6; i++) {
+            const startX = Math.random() * 1920;
+            const mist = this.add.ellipse(
+                startX,
+                750 + (Math.random() * 250),
+                500 + (Math.random() * 400),
+                180,
+                0x6a7c8c,
+                0.25
+            ).setDepth(1);
+            
+            // Much more dramatic drifting and fading
+            this.tweens.add({
+                targets: mist,
+                x: startX + 400,
+                alpha: { from: 0.08, to: 0.35 },
+                scaleX: { from: 1, to: 1.3 },
+                duration: 10000 + (Math.random() * 3000),
+                repeat: -1,
+                yoyo: true,
+                ease: 'Sine.easeInOut'
+            });
+            
+            this.atmosphereEffects.push(mist);
+        }
+    }
+
+    addLightFog() {
+        // Dramatic atmospheric fog for village
+        for (let i = 0; i < 5; i++) {
+            const startX = Math.random() * 1920;
+            const fog = this.add.ellipse(
+                startX,
+                550 + (Math.random() * 350),
+                550 + (Math.random() * 250),
+                140,
+                0xd4a76a,
+                0.18
+            ).setDepth(1);
+            
+            // More noticeable drifting and pulsing
+            this.tweens.add({
+                targets: fog,
+                x: startX + 350,
+                alpha: { from: 0.05, to: 0.28 },
+                scaleX: { from: 1, to: 1.25 },
+                duration: 9000 + (Math.random() * 2500),
+                repeat: -1,
+                yoyo: true,
+                ease: 'Sine.easeInOut'
+            });
+            
+            this.atmosphereEffects.push(fog);
+        }
+    }
+
+    addBubbles() {
+        // Dramatic bubbles with varied speeds
+        for (let i = 0; i < 25; i++) {
+            const x = Math.random() * 1920;
+            const startY = 1080 + Math.random() * 200;
+            const size = 4 + Math.random() * 6;
+            const bubble = this.add.circle(x, startY, size, 0x87CEEB, 0.7)
+                .setDepth(2)
+                .setBlendMode(Phaser.BlendModes.ADD);
+            
+            // More dynamic rising with wobble
+            this.tweens.add({
+                targets: bubble,
+                y: -80,
+                x: x + Math.sin(i) * 120,
+                alpha: { from: 0.7, to: 0 },
+                scale: { from: 0.4, to: 1.8 },
+                duration: 4000 + Math.random() * 2000,
+                delay: Math.random() * 3000,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
+            });
+            
+            this.atmosphereEffects.push(bubble);
+        }
+    }
+
+    addFloatingParticles(color, alpha, count) {
+        // Floating particles with more dramatic animation
+        const hexColor = typeof color === 'string' ? parseInt(color.replace('#', '0x')) : color;
+        
+        for (let i = 0; i < count * 8; i++) {
+            const x = Math.random() * 1920;
+            const y = Math.random() * 1080;
+            const size = 4 + Math.random() * 6;
+            const particle = this.add.circle(x, y, size, hexColor, alpha * 0.6)
+                .setDepth(2)
+                .setBlendMode(Phaser.BlendModes.ADD);
+            
+            // Much more active movement and pulsing
+            this.tweens.add({
+                targets: particle,
+                x: x + (Math.random() * 200 - 100),
+                y: y + (Math.random() * 200 - 100),
+                alpha: { from: alpha * 0.6, to: alpha * 0.1 },
+                scale: { from: 0.5, to: 2.0 },
+                duration: 4000 + Math.random() * 2000,
+                yoyo: true,
+                repeat: -1,
+                ease: 'Sine.easeInOut'
+            });
+            
+            this.atmosphereEffects.push(particle);
+        }
     }
 
     displayText(text) {
@@ -417,6 +698,24 @@ class StoryScene extends Phaser.Scene {
         document.getElementById('debug-reset-btn').onclick = () => {
             this.storyManager.reset();
         };
+    }
+
+    toggleDebug() {
+        const currentDebugState = this.registry.get('debug');
+        const newDebugState = !currentDebugState;
+
+        this.registry.set('debug', newDebugState);
+
+        if (newDebugState) {
+            // Enable debug mode
+            this.setupDebugTools();
+            console.log('Debug mode enabled (Shift+D to toggle)');
+        } else {
+            // Disable debug mode
+            this.debugPanel.classList.add('hidden');
+            this.debugPanel.innerHTML = '';
+            console.log('Debug mode disabled (Shift+D to toggle)');
+        }
     }
 
     updateDebugInfo() {
