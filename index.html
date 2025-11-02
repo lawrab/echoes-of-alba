@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Echoes of Alba - The Seal Wife of Skye</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/phaser@3.80.1/dist/phaser.min.js"></script>
+</head>
+<body>
+    <div id="game-container">
+        <!-- Phaser canvas will be inserted here -->
+    </div>
+
+    <!-- HTML overlay for interactive UI -->
+    <div id="ui-overlay">
+        <div id="story-text-container" class="hidden">
+            <div id="story-text"></div>
+        </div>
+        <div id="choice-buttons-container" class="hidden"></div>
+        <div id="audio-controls">
+            <button id="replay-audio" title="Replay narration">↻</button>
+            <button id="play-pause-audio" title="Play/Pause narration">⏸</button>
+            <button id="skip-audio" title="Skip narration">⏭</button>
+            <div id="volume-control">
+                <label for="narration-volume">🔊</label>
+                <input type="range" id="narration-volume" min="0" max="2" step="0.1" value="1.5">
+            </div>
+        </div>
+        <div id="debug-panel" class="hidden"></div>
+    </div>
+
+    <!-- Load game scripts -->
+    <script src="js/utils/StoryManager.js"></script>
+    <script src="js/data/selkieStory.js"></script>
+    <script src="js/scenes/BootScene.js"></script>
+    <script src="js/scenes/MenuScene.js"></script>
+    <script src="js/scenes/StoryScene.js"></script>
+    <script src="js/scenes/EndingScene.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>
