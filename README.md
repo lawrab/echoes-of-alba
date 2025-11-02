@@ -2,6 +2,8 @@
 
 An interactive branching story game about Scottish mythology, built for young readers (ages 7-10).
 
+**[Play Now](https://lawrab.github.io/echoes-of-alba/)** - No installation required!
+
 ## Current Story: The Seal Wife of Skye
 
 Discover a mysterious seal skin on the shores of Skye and embark on a magical adventure with the Selkie folk. Your choices determine the path of the story through 5 unique endings!
@@ -10,15 +12,17 @@ Discover a mysterious seal skin on the shores of Skye and embark on a magical ad
 
 ### Quick Start
 
-1. **Open the game:**
+**Play Online:** Visit **https://lawrab.github.io/echoes-of-alba/** to play instantly in your browser!
+
+**Run Locally:**
+1. Clone this repository
+2. Start a local server:
    ```bash
    cd echoes-of-alba
    python3 -m http.server 8000
    ```
-
-2. **Open in browser:** http://localhost:8000
-
-3. **Play!** Click choices to navigate through the story.
+3. Open http://localhost:8000 in your browser
+4. Click choices to navigate through the story
 
 ### Controls
 
@@ -27,14 +31,16 @@ Discover a mysterious seal skin on the shores of Skye and embark on a magical ad
 
 ### Debug Mode
 
-For development and testing, debug tools are enabled by default:
+For development and testing, debug tools are available:
 
 - **Top-right panel** shows current story beat
 - **Jump to Beat:** Skip to any part of the story
 - **Validate Story:** Check for broken links in story data
 - **Reset Story:** Start over from the beginning
 
-To disable: Set `DEBUG_MODE = false` in `js/main.js`
+Debug mode is disabled by default. To enable:
+- Set `DEBUG_MODE = true` in `js/main.js`, or
+- Press `Shift+D` during gameplay (note: currently not functional - see [issue #1](https://github.com/lawrab/echoes-of-alba/issues/1))
 
 ## Story Paths
 

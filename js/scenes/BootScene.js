@@ -76,10 +76,22 @@ class BootScene extends Phaser.Scene {
     }
 
     create() {
+        // Create particle texture procedurally
+        this.createParticleTexture();
+        
         // Initialize game registry for global data
         this.registry.set('debug', window.DEBUG_MODE || false);
 
         // Transition to menu
         this.scene.start('MenuScene');
+    }
+
+    createParticleTexture() {
+        // Create a simple circular particle texture
+        const graphics = this.add.graphics();
+        graphics.fillStyle(0xffffff, 1);
+        graphics.fillCircle(8, 8, 8);
+        graphics.generateTexture('particle', 16, 16);
+        graphics.destroy();
     }
 }
